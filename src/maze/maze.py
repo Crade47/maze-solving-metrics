@@ -1,6 +1,5 @@
 from .cell import Cell
 import random
-
 class Maze:
     def __init__(self, size) -> None:
         self.width = size
@@ -49,6 +48,14 @@ class Maze:
                 cell2.walls[wall2] = False
                 # Merge the sets
                 self.union(cell_coord1, cell_coord2)
+
+        entry_cell = self.grid[0][0]
+        exit_cell = self.grid[self.height - 1][self.width - 1]
+
+        # Create entry and exit by removing appropriate walls
+        entry_cell.walls['left'] = False  # Entry on the left boundary of the top-left cell
+        exit_cell.walls['right'] = False
+        return self.grid
     
     def display(self):
         # Simple text-based maze visualization.
