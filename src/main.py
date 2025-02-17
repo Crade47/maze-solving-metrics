@@ -14,7 +14,9 @@ def main():
     args = parser.parse_args()
     maze = Maze(args.size)  
     generated_maze = maze.generate()
+
     if args.visualize:
+        maze.display()
         visualizer = Visualizer(generated_maze)
         visualizer.visualize()
 if __name__ == "__main__":

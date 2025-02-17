@@ -4,7 +4,7 @@ class Maze:
     def __init__(self, size) -> None:
         self.width = size
         self.height = size
-
+        self.size = size
         self.grid = [[Cell(x, y) for x in range(self.width)] for y in range(self.height)]
         # Initialize union-find parent dictionary; each cell is its own parent initially.
         self.parent = {(x, y): (x, y) for y in range(self.height) for x in range(self.width)}
@@ -49,12 +49,7 @@ class Maze:
                 # Merge the sets
                 self.union(cell_coord1, cell_coord2)
 
-        entry_cell = self.grid[0][0]
-        exit_cell = self.grid[self.height - 1][self.width - 1]
 
-        # Create entry and exit by removing appropriate walls
-        entry_cell.walls['left'] = False  # Entry on the left boundary of the top-left cell
-        exit_cell.walls['right'] = False
         return self.grid
     
     def display(self):
