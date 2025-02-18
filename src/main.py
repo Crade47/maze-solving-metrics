@@ -1,6 +1,7 @@
 import argparse
 # import time
 # import csv
+from algorithm.search.bfs import BFS
 from maze import Maze
 from utils import Visualizer
 
@@ -14,6 +15,11 @@ def main():
     args = parser.parse_args()
     maze = Maze(args.size)  
     generated_maze = maze.generate()
+
+
+    solver = BFS(maze)
+    path = solver.solve()
+    print(path)
 
     if args.visualize:
         maze.display()
