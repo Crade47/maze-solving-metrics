@@ -51,38 +51,3 @@ class BFS:
                             frontier.append((nr, nc))
         return [] 
 
-"""
-    def bfs_solve(self):
-        start = (0, 0)
-        goal = (self.maze.width - 1, self.maze.height - 1)
-
-        queue = deque([start])           # Our frontier of cells to explore
-        came_from = {start: None}        # To track the path back to the start
-
-        while queue:
-            x, y = queue.popleft()       # Dequeue the current cell
-
-            # Check if we reached the goal:
-            if (x, y) == goal:
-                return reconstruct_path(came_from, start, goal)
-
-            cell = self.maze.grid[y][x]       # Get the current cell from the grid
-
-            # Explore the four possible directions:
-            for dx, dy, wall_key, opposite_wall in [
-                (1, 0, "right", "left"),
-                (-1, 0, "left", "right"),
-                (0, 1, "bottom", "top"),
-                (0, -1, "top", "bottom")
-            ]:
-                nx, ny = x + dx, y + dy
-
-                # Check bounds:
-                if 0 <= nx < self.maze.width and 0 <= ny < self.maze.height:
-                    # Check if the current cell has an open passage in the direction we're looking:
-                    if not cell.walls[wall_key]:
-                        if (nx, ny) not in came_from:  # Not visited yet
-                            queue.append((nx, ny))
-                            came_from[(nx, ny)] = (x, y)
-        return None  # Should not happen for a perfect self.maze
-"""

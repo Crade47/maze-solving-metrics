@@ -3,9 +3,10 @@ import random
 
 
 class Maze:
-    def __init__(self, size) -> None:
-        self.width = size
-        self.height = size
+    def __init__(self, size: int) -> None:
+        self.width: int = size
+        self.height: int = size
+
         # Create grid with (row, column) coordinates.
         self.grid = [
             [Cell(r, c) for c in range(self.width)] for r in range(self.height)
