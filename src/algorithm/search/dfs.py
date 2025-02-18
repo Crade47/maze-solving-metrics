@@ -2,22 +2,9 @@
 from collections import deque
 from typing import Optional, Set, Tuple, List
 from maze import Maze
+from utils.utils import reconstruct_path
 
 CoordinateType = Tuple[int, int]
-
-def reconstruct_path(
-    came_from,
-    start: CoordinateType,
-    goal: CoordinateType,
-) -> List[CoordinateType]:
-    path = []
-    current = goal
-    while current:
-        path.append(current)
-        current = came_from[current]
-    path.reverse()
-    return path
-
 
 class DFS:
     def __init__(self, maze: Maze):
