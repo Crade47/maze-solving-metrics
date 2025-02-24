@@ -1,7 +1,8 @@
 from typing import Tuple
 
+from utils.types import CoordinateType
 
-CoordinateType = Tuple[int, int]
+
 
 
 class Heuristic:
