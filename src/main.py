@@ -3,13 +3,15 @@ import time
 from typing import Dict, Optional
 
 # import csv
-from algorithm.mdp.value_iteration import VI_MDP, get_path_from_policy
+from algorithm.mdp.policy_iteration import PI_MDP
+from algorithm.mdp.value_iteration import VI_MDP
 from algorithm.search.bfs import BFS
 from maze import Maze
 from algorithm.search.dfs import DFS
 from algorithm.search.astar import AStar
 from utils import Visualizer
 from utils.types import CoordinateType
+from utils.utils import get_path_from_policy
 
 
 def main():
@@ -67,7 +69,22 @@ def main():
             )
 
             solver.value_iteration()
-            policy: Dict[CoordinateType, Optional[CoordinateType]] = solver.policy
+            policy: Dict[CoordinateType, Optional[CoordinateType]] = solver.get_policy()
+            path = get_path_from_policy(policy, (0, 0), solver.goal)
+            exec_time = time.time() - start_time
+            print(
+                f"Execution time for ALGORITHM [{args.algorithm.capitalize()}] on SIZE: [{args.size} x {args.size}] : {exec_time}"
+            )
+
+        if args.algorithm == "pi":
+            solver = PI_MDP(
+                maze,
+                args.gamma,
+                args.reward_step,
+                args.reward_goal,
+            )
+            solver.policy_iteration()            
+            policy: Dict[CoordinateType, Optional[CoordinateType]] = solver.get_policy()
             path = get_path_from_policy(policy, (0, 0), solver.goal)
             exec_time = time.time() - start_time
             print(

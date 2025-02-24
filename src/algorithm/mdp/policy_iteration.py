@@ -1,11 +1,11 @@
-from typing import List
+from typing import Dict, List, Optional
 from maze.maze import Maze
 from utils.types import CoordinateType
 
 
-class VI_MDP:
+class PI_MDP:
     def __init__(
-        self, maze: Maze, gamma: float = 0.9, move_cost: int = -1, goal_reward=10, max_iter = 1000
+        self, maze: Maze, gamma: float = 0.9, move_cost: int = -1, goal_reward=10
     ):
         """
         Initialize the MDP for maze solving.
@@ -20,10 +20,9 @@ class VI_MDP:
         self.gamma: float = gamma
         self.move_cost: int = move_cost
         self.goal_reward = goal_reward
-        self.max_iter = max_iter
 
-        self.values = {}
-        self.policy = {}
+        self.values: Dict[CoordinateType, float] = {}
+        self.policy: Dict[CoordinateType, Optional[CoordinateType]] = {}
 
         for r in range(self.maze.height):
             for c in range(self.maze.width):
@@ -71,57 +70,71 @@ class VI_MDP:
         dr, dc = action
         return (r + dr, c + dc)
 
-    def get_reward(self, next_state: CoordinateType) -> int:
-        """
-        Get the reward for the next state
-        If next_state is the goal, return the goal reward; otherwise, return the move cost.
-        """
-        if next_state == self.goal:
-            return self.goal_reward
-        return -1
+    def policy_evaluation(self, threshold: float = 1e-4) -> None:
+        """Evaluates the current policy until values converge."""
+        while True:
+            delta: float = 0  # Track max change in value function
+            new_values = self.values.copy()
 
-    def value_iteration(self, epsilon=0.001):
-        """
-        Perform value iteration untill the change in values is less than epsilon or
-        the max_iterations is exhausted
-        """
-
-        iterations = 0
-        while iterations < self.max_iter:
-            delta = 0  # Maximum change in the value function in this iteration.
-            new_values = self.values.copy()  # copy of the initialized values
-
-            # iterate over all states and update it's values
             for state in self.values:
                 if self.is_terminal(state):
-                    new_values[state] = 0.0  # Terminal state value is 0
-                    self.policy[state] = None
-                    continue  # Skip to next state
-                    
-                best_value = float("-inf")
-                best_action = None
+                    continue  # Terminal states remain unchanged
 
-                for action in self.get_actions(state):
-                    next_state = self.get_next_state(state, action)
-                    reward = self.get_reward(next_state)
+                action = self.policy[state]
+                if action is None:
+                    continue  # No action assigned yet
 
-                    value = reward + self.gamma * self.values[next_state]
-                    if value > best_value:
-                        best_value = value
-                        best_action = action
-                # if we reach a dead end
-                if best_value == float("-inf"):
-                    best_value = self.values[state]
+                # Compute next state and determine reward
+                next_state = self.get_next_state(state, action)
+                is_terminal_next = self.is_terminal(next_state)
+                reward = self.goal_reward if is_terminal_next else self.move_cost
 
-                new_values[state] = best_value
-                self.policy[state] = best_action
+                # Bellman equation: V(s) = R(s) + γ V(s')
+                new_values[state] = reward + self.gamma * self.values.get(next_state, 0)
+
                 delta = max(delta, abs(new_values[state] - self.values[state]))
 
-            self.values = new_values
-            iterations += 1
+            self.values = new_values  # Update state values
 
-            if delta < epsilon:
-                break
+            if delta < threshold:
+                break  # Stop when values converge
+
+    def policy_improvement(self) -> bool:
+        """Improves the policy based on updated values."""
+        policy_stable = True
+
+        for state in self.values:
+            if self.is_terminal(state):
+                continue  # Terminal state has no policy to update
+
+            old_action = self.policy[state]
+            best_action = None
+            best_value = float("-inf")
+
+            for action in self.get_actions(state):
+                next_state = self.get_next_state(state, action)
+                is_terminal_next = self.is_terminal(next_state)
+                reward = self.goal_reward if is_terminal_next else self.move_cost
+                value = reward + self.gamma * self.values.get(next_state, 0)
+
+                if value > best_value:
+                    best_value = value
+                    best_action = action
+
+            self.policy[state] = best_action
+
+            if old_action != best_action:
+                policy_stable = False  # Policy changed, not stable
+
+        return policy_stable
+
+
+    def policy_iteration(self):
+        """Runs the policy iteration algorithm until convergence."""
+        while True:
+            self.policy_evaluation()
+            if self.policy_improvement():
+                break  # Stop if policy does not change
 
     def get_policy(self):
         """Return the computed policy after value iteration."""
